@@ -8,93 +8,174 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Serve static files from public folder
 app.use(express.static(path.join(__dirname, "public")));
 
-const DATA_FILE = path.join(__dirname, "customers.json");
+const DATA_FILE = "./customers.json";
 
-// Home route
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
+/*
+=================================
+GET ALL CUSTOMERS
+=================================
+*/
 
-// Get all customers
 app.get("/api/customers", (req, res) => {
-  try {
-    const data = fs.readFileSync(DATA_FILE, "utf8");
-    const customers = JSON.parse(data);
-    res.json(customers);
-  } catch (error) {
-    res.json([]);
-  }
+    try {
+        const customers = JSON.parse(
+            fs.readFileSync(DATA_FILE, "utf8")
+        );
+
+        res.json(customers);
+    } catch (error) {
+        res.json([]);
+    }
 });
 
-// Add customer
+/*
+=================================
+ADD CUSTOMER
+=================================
+*/
+
 app.post("/api/customers", (req, res) => {
-  try {
-    const newCustomer = req.body;
+
+    const { name, phone } = req.body;
 
     let customers = [];
 
-    if (fs.existsSync(DATA_FILE)) {
-      const data = fs.readFileSync(DATA_FILE, "utf8");
-      customers = JSON.parse(data);
+    try {
+        customers = JSON.parse(
+            fs.readFileSync(DATA_FILE, "utf8")
+        );
+    } catch (error) {
+        customers = [];
     }
+
+    const newCustomer = {
+        id: Date.now(),
+        name,
+        phone
+    };
 
     customers.push(newCustomer);
 
     fs.writeFileSync(
-      DATA_FILE,
-      JSON.stringify(customers, null, 2)
+        DATA_FILE,
+        JSON.stringify(customers, null, 2)
     );
 
     res.json({
-      success: true,
-      message: "Customer added successfully",
+        success: true,
+        customer: newCustomer
     });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
 });
 
-// Dashboard stats
+/*
+=================================
+DELETE CUSTOMER
+=================================
+*/
+
+app.delete("/api/customers/:id", (req, res) => {
+
+    const id = Number(req.params.id);
+
+    let customers = [];
+
+    try {
+        customers = JSON.parse(
+            fs.readFileSync(DATA_FILE, "utf8")
+        );
+    } catch (error) {
+        customers = [];
+    }
+
+    customers = customers.filter(
+        customer => customer.id !== id
+    );
+
+    fs.writeFileSync(
+        DATA_FILE,
+        JSON.stringify(customers, null, 2)
+    );
+
+    res.json({
+        success: true
+    });
+});
+
+/*
+=================================
+STATS
+=================================
+*/
+
 app.get("/api/stats", (req, res) => {
-  try {
-    const data = fs.readFileSync(DATA_FILE, "utf8");
-    const customers = JSON.parse(data);
+
+    let customers = [];
+
+    try {
+        customers = JSON.parse(
+            fs.readFileSync(DATA_FILE, "utf8")
+        );
+    } catch (error) {
+        customers = [];
+    }
 
     res.json({
-      totalCustomers: customers.length,
-      campaignsSent: 12,
-      messagesDelivered: customers.length * 3,
+        totalCustomers: customers.length
     });
-  } catch (error) {
-    res.json({
-      totalCustomers: 0,
-      campaignsSent: 0,
-      messagesDelivered: 0,
-    });
-  }
 });
 
-// Generate campaign
+/*
+=================================
+GENERATE CAMPAIGN
+=================================
+*/
+
 app.post("/api/campaign", (req, res) => {
-  const { message } = req.body;
 
-  res.json({
-    success: true,
-    campaignMessage: message,
-    sentTo: "All Customers",
-    status: "Campaign Generated Successfully",
-  });
+    const { message } = req.body;
+
+    let customers = [];
+
+    try {
+        customers = JSON.parse(
+            fs.readFileSync(DATA_FILE, "utf8")
+        );
+    } catch (error) {
+        customers = [];
+    }
+
+    const campaignLinks = customers.map(customer => ({
+        id: customer.id,
+        name: customer.name,
+        phone: customer.phone,
+        link: `https://wa.me/${customer.phone}?text=${encodeURIComponent(message)}`
+    }));
+
+    res.json(campaignLinks);
 });
 
-// Render Port
-const PORT = process.env.PORT || 10000;
+/*
+=================================
+HOME PAGE
+=================================
+*/
+
+app.get("*", (req, res) => {
+    res.sendFile(
+        path.join(__dirname, "public", "index.html")
+    );
+});
+
+/*
+=================================
+START SERVER
+=================================
+*/
+
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
