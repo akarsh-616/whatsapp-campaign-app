@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>
+        WhatsApp Campaign Dashboard
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>
+            📱 WhatsApp Campaign Dashboard
+        </h1>
+
+        <!-- DASHBOARD -->
+
+        <div class="card">
+
+            <h2>
+                Dashboard
+            </h2>
+
+            <p>
+                Total Customers:
+                <span id="totalCustomers">
+                    0
+                </span>
+            </p>
+
+        </div>
+
+        <!-- ADD CUSTOMER -->
+
+        <div class="card">
+
+            <h2>
+                Add Customer
+            </h2>
+
+            <input
+                type="text"
+                id="name"
+                placeholder="Customer Name"
+            >
+
+            <input
+                type="text"
+                id="phone"
+                placeholder="Phone Number"
+            >
+
+            <button
+                onclick="addCustomer()"
+            >
+                Add Customer
+            </button>
+
+        </div>
+
+        <!-- CUSTOMER LIST -->
+
+        <div class="card">
+
+            <h2>
+                Customer List
+            </h2>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Action</th>
+                    </tr>
+
+                </thead>
+
+                <tbody
+                    id="customerTable"
+                >
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <!-- CAMPAIGN -->
+
+        <div class="card">
+
+            <h2>
+                Create Campaign
+            </h2>
+
+            <textarea
+
+                id="campaignMessage"
+
+                rows="5"
+
+                placeholder="Enter your offer message..."
+
+            ></textarea>
+
+            <button
+                onclick="generateCampaign()"
+            >
+                Generate Campaign
+            </button>
+
+        </div>
+
+        <!-- LINKS -->
+
+        <div class="card">
+
+            <h2>
+                WhatsApp Links
+            </h2>
+
+            <div
+                id="campaignLinks"
+            ></div>
+
+        </div>
+
+    </div>
+
+    <script
+        src="script.js"
+    ></script>
+
+</body>
+
+</html>
